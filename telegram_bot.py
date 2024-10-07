@@ -1,7 +1,6 @@
 from telegram import Update
 from telegram.ext import ApplicationBuilder, CommandHandler, MessageHandler, filters, ContextTypes
 import aiohttp
-import asyncio
 
 # Ваш токен бота
 TOKEN = '7435741097:AAEVsd3t6sgkNUQoAWAO8NKvhdMmfCVv0S4'
@@ -12,7 +11,6 @@ ADMIN_ID = 1604384939
 MOCKAPI_URL = 'https://6703f9f6ab8a8f8927327c94.mockapi.io/chat_users'
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
-    user_id = update.message.chat.id
     await update.message.reply_text('Привет! Все ваши сообщения будут отправлены администратору.')
 
 async def forward_user_message(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
@@ -43,7 +41,9 @@ async def forward_admin_message(update: Update, context: ContextTypes.DEFAULT_TY
                     async with session.get(MOCKAPI_URL) as response:
                         if response.status == 200:
                             messages = await response.json()
-                            user_messages = [msg for msg in messages if msg['user_id'] == user_id]
+
+                            # Проверяем, есть ли сообщения с user_id
+                            user_messages = [msg for msg in messages if 'user_id' in msg and msg['user_id'] == user_id]
 
                             if user_messages:
                                 # Отправляем сообщение пользователю
