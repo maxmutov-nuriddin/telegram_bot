@@ -22,7 +22,11 @@ async def forward_user_message(update: Update, context: ContextTypes.DEFAULT_TYP
         async with session.post(MOCKAPI_URL, json={"user_id": user_id, "message": message_text}) as response:
             if response.status == 201:
                 await context.bot.send_message(chat_id=ADMIN_ID, text=f'Сообщение от пользователя {user_id}: {message_text}')
-                await update.message.reply_text('Ваше сообщение было отправлено администратору.')
+                await update.message.reply_text(
+    '✉️ Ваше сообщение было успешно отправлено администратору!\n'
+    'Пожалуйста, подождите, пока мы подготовим для вас ответ.\n'
+    'Мы ценим ваше терпение! 🌟'
+)
             else:
                 await update.message.reply_text('Произошла ошибка при отправке сообщения.')
 
@@ -47,8 +51,8 @@ async def forward_admin_message(update: Update, context: ContextTypes.DEFAULT_TY
 
                             if user_messages:
                                 # Отправляем сообщение пользователю
-                                await context.bot.send_message(chat_id=user_id, text=f'Ответ от администратора: {message_to_user}')
-                                await context.bot.send_message(chat_id=ADMIN_ID, text=f'Сообщение отправлено пользователю {user_id}: {message_to_user}')
+                                await context.bot.send_message(chat_id=user_id, text=f'📝 Ответ от администратора:\n\n{message_to_user}')
+                                await context.bot.send_message(chat_id=ADMIN_ID, text=f'Сообщение отправлено пользователю {user_id}:\n\n{message_to_user}')
                             else:
                                 await context.bot.send_message(chat_id=ADMIN_ID, text='Пользователь не найден или не начал разговор.')
                         else:
