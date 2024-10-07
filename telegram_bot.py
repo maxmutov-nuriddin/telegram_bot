@@ -1,10 +1,10 @@
+import os
 from telegram import Update
 from telegram.ext import ApplicationBuilder, CommandHandler, MessageHandler, filters, ContextTypes
 
-# Ваш токен бота
-TOKEN = '7435741097:AAEVsd3t6sgkNUQoAWAO8NKvhdMmfCVv0S4'
-# Ваш ID (администратора)
-ADMIN_ID = 1604384939
+# Получение токена бота и ID администратора из переменных окружения
+TOKEN = os.getenv('TELEGRAM_BOT_TOKEN')
+ADMIN_ID = int(os.getenv('ADMIN_ID'))
 
 # Словарь для хранения chat_id пользователей
 user_messages = {}
@@ -24,9 +24,6 @@ async def forward_user_message(update: Update, context: ContextTypes.DEFAULT_TYP
 async def forward_admin_message(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     # Проверяем, что сообщение отправлено администратором
     if update.message.chat.id == ADMIN_ID:
-        # await update.message.reply_text('forward_admin_message вызвана.')
-        # await context.bot.send_message(chat_id=ADMIN_ID, text=f'ADMIN_ID: {ADMIN_ID}')  # Отправляем ADMIN_ID
-
         parts = update.message.text.split()
 
         # Проверяем, указал ли администратор ID пользователя
