@@ -36,11 +36,11 @@ async def forward_user_message(update: Update, context: ContextTypes.DEFAULT_TYP
             async with session.post(MOCKAPI_URL, json={"user_id": user_id, "message": message_text}) as response:
                 if response.status == 201:
                     # Определяем состояние пользователя и отправляем соответствующее уведомление администратору
-                    state = user_states.get(user_id, None)
-                    if state == 'presentation':
-                        await context.bot.send_message(chat_id=ADMIN_ID, text=f'Сообщение от пользователя {user_id} (Презентация): {message_text}')
-                    elif state == 'ffx':
-                        await context.bot.send_message(chat_id=ADMIN_ID, text=f'Сообщение от пользователя {user_id} (FFX): {message_text}')
+                    if user_id in user_states:
+                        if user_states[user_id] == 'presentation':
+                            await context.bot.send_message(chat_id=ADMIN_ID, text=f'Сообщение от пользователя {user_id} (Презентация): {message_text}')
+                        elif user_states[user_id] == 'ffx':
+                            await context.bot.send_message(chat_id=ADMIN_ID, text=f'Сообщение от пользователя {user_id} (FFX): {message_text}')
                     await update.message.reply_text(
                         '✉️ Ваше сообщение было успешно отправлено администратору!\n'
                         'Пожалуйста, подождите, пока мы подготовим для вас ответ.\n'
@@ -50,18 +50,6 @@ async def forward_user_message(update: Update, context: ContextTypes.DEFAULT_TYP
                     await update.message.reply_text('Произошла ошибка при отправке сообщения на MockAPI.')
         except Exception as e:
             await update.message.reply_text(f'Произошла ошибка: {e}')
-
-    # Отправляем файлы и фотографии, если они есть
-    if update.message.document:
-        try:
-            await context.bot.send_document(chat_id=ADMIN_ID, document=update.message.document.file_id)
-        except Exception as e:
-            await update.message.reply_text(f'Ошибка при отправке документа: {e}')
-    elif update.message.photo:
-        try:
-            await context.bot.send_photo(chat_id=ADMIN_ID, photo=update.message.photo[-1].file_id)
-        except Exception as e:
-            await update.message.reply_text(f'Ошибка при отправке фото: {e}')
 
 async def forward_admin_message(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     if update.message.chat.id == ADMIN_ID:
@@ -113,6 +101,21 @@ async def forward_admin_message(update: Update, context: ContextTypes.DEFAULT_TY
     else:
         await update.message.reply_text('Вы не имеете прав для отправки сообщений администратору.')
 
+async def forward_admin_presentation(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    if update.message.chat.id == ADMIN_ID and update.message.document:
+        user_id = int(update.message.caption.split()[0]) if update.message.caption else None
+        await context.bot.send_message(chat_id=ADMIN_ID, text=f'Попытка отправить презентацию пользователю {user_id}.')
+
+        if user_id is not None and update.message.document.file_name.endswith('.pptx'):
+            try:
+                await context.bot.send_document(chat_id=user_id, document=update.message.document.file_id)
+                await context.bot.send_message(chat_id=ADMIN_ID, text=f'Презентация отправлена пользователю {user_id}.')
+            except Exception as e:
+                await context.bot.send_message(chat_id=ADMIN_ID, text=f'Ошибка при отправке презентации пользователю {user_id}: {e}')
+        else:
+            await context.bot.send_message(chat_id=ADMIN_ID, text='Пожалуйста, укажите корректный ID пользователя в подписи к презентации.')
+
+
 def main():
     application = ApplicationBuilder().token(TOKEN).build()
 
@@ -127,6 +130,8 @@ def main():
     application.add_handler(MessageHandler(filters.User(ADMIN_ID) & filters.Document.ALL, forward_admin_message))
     # Для фото
     application.add_handler(MessageHandler(filters.User(ADMIN_ID) & filters.PHOTO, forward_admin_message))
+    # Для презентаций (файлы с расширением .pptx)
+    application.add_handler(MessageHandler(filters.User(ADMIN_ID) & filters.Document.ALL, forward_admin_presentation))
 
     application.run_polling()
 
