@@ -12,5 +12,7 @@ MOCKAPI_URL (обязательный):
 Это URL ресурса на MockAPI, который используется для взаимодействия бота с базой данных или API. Этот URL выдается после регистрации и создания ресурса на сайте MockAPI. Без этого URL бот не сможет сохранять или получать данные.
 
 ВАЖНО УСТАНОВИТЬ!!!
-pip install python-telegram-bot
-pip install aiohttp
+
+- pip install python-telegram-bot
+
+- pip install aiohttp
