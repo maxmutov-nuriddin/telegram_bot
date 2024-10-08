@@ -8,7 +8,7 @@ TOKEN = '7435741097:AAEVsd3t6sgkNUQoAWAO8NKvhdMmfCVv0S4'
 ADMIN_ID = 1604384939
 
 # URL MockAPI
-MOCKAPI_URL = 'https://6703f9f6ab8a8f8927327c94.mockapi.io/chat_users'
+MOCKAPI_URL = 'https://67056516031fd46a830fca90.mockapi.io/chat_users'
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     await update.message.reply_text('Привет! Все ваши сообщения будут отправлены администратору.')
@@ -16,8 +16,8 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
 async def forward_user_message(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     user_id = update.message.chat.id
     message_text = update.message.text
-    
-    # Отправляем сообщение на MockAPI
+
+    # Отправляем текстовое сообщение на MockAPI
     async with aiohttp.ClientSession() as session:
         async with session.post(MOCKAPI_URL, json={"user_id": user_id, "message": message_text}) as response:
             if response.status == 201:
@@ -29,6 +29,12 @@ async def forward_user_message(update: Update, context: ContextTypes.DEFAULT_TYP
                 )
             else:
                 await update.message.reply_text('Произошла ошибка при отправке сообщения.')
+
+    # Отправляем файлы и фотографии, если они есть
+    if update.message.document:
+        await context.bot.send_document(chat_id=ADMIN_ID, document=update.message.document.file_id)
+    elif update.message.photo:
+        await context.bot.send_photo(chat_id=ADMIN_ID, photo=update.message.photo[-1].file_id)
 
 async def forward_admin_message(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     if update.message.chat.id == ADMIN_ID:
@@ -80,9 +86,9 @@ def main():
     # Для текстовых сообщений
     application.add_handler(MessageHandler(filters.User(ADMIN_ID) & filters.TEXT, forward_admin_message))
     # Для документов
-    application.add_handler(MessageHandler(filters.User(ADMIN_ID) & filters.Document.ALL, forward_admin_message))  # Исправлено
+    application.add_handler(MessageHandler(filters.User(ADMIN_ID) & filters.Document.ALL, forward_admin_message))
     # Для фото
-    # application.add_handler(MessageHandler(filters.User(ADMIN_ID) & filters.Photo.ALL, forward_admin_message))  # Исправлено
+    application.add_handler(MessageHandler(filters.User(ADMIN_ID) & filters.PHOTO, forward_admin_message))  # Исправлено
 
     application.run_polling()
 
