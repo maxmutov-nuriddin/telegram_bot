@@ -14,7 +14,7 @@ MOCKAPI_URL = 'https://67056516031fd46a830fca90.mockapi.io/chat_users'
 user_states = {}
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
-    await update.message.reply_text('Привет🖐! 🚀 Просим вас выбрать один из режимов, представленных в меню 📋.')
+    await update.message.reply_text('Привет🖐!\n🚀 Просим вас выбрать один из режимов, представленных в меню 📋.')
 
 async def presentation(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     user_id = update.message.chat.id
