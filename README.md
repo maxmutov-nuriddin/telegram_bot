@@ -1,6 +1,6 @@
 ОБЯЗАТЕЛЬНЫЙ!!!
 
-![image](https://github.com/user-attachments/assets/5956c2c6-104f-4bb5-b665-df769bb014a0)
+![image](https://github.com/user-attachments/assets/7c2c3138-1b04-4640-9d1d-f3952dddb8bc)
 
 TOKEN (обязательный):
 Это токен вашего бота, который вы получите после создания бота в Telegram с помощью BotFather. Без этого токена бот не сможет работать и взаимодействовать с Telegram API.
