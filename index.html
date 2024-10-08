@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>File Upload Example</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        #fileList {
+            list-style-type: none;
+            padding: 0;
+        }
+    </style>
+</head>
+<body>
+
+<h1>Загрузка файлов</h1>
+
+<form id="uploadForm">
+    <label for="fileInput">Выберите файл:</label>
+    <input type="file" id="fileInput" required>
+    <br><br>
+    <label for="fileName">Имя файла:</label>
+    <input type="text" id="fileName" required>
+    <br><br>
+    <button type="submit">Загрузить файл</button>
+</form>
+
+<h2>Список загруженных файлов</h2>
+<ul id="fileList"></ul>
+
+<script src="./js/script.js"></script>
+</body>
+</html>
