@@ -26,8 +26,32 @@ async def ffx(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     user_states[user_id] = 'ffx'  # Устанавливаем состояние пользователя
     await update.message.reply_text('Вы активировали режим FFX. Ваши сообщения будут отправлены администратору.')
 
+async def fortis_info(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    await update.message.reply_text(
+        'Fortis — это крупная компания, занимающаяся финансовыми услугами, включая банковское дело, страхование и управление активами.'
+    )
+
+async def fwb_info(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    await update.message.reply_text(
+        'FWB — это термин, который часто используется для обозначения финансовых решений, или в контексте программирования — как название среды или системы.'
+    )
+
 async def forward_user_message(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     user_id = update.message.chat.id
+
+    # Проверяем, выбрал ли пользователь режим
+    if user_id not in user_states:
+        await update.message.reply_text(
+    '🚀 Перед тем, как продолжить, пожалуйста, выберите один из режимов, представленных ниже:\n\n'
+    '🔹 /fortis — Узнать больше о нашей компании\n'
+    '🔹 /ffx — Режим трейдер\n'
+    '🔹 /fwb — Режим программирования\n'
+    '🔹 /presentation — Режим презентации\n\n'
+    '✨ Мы готовы помочь вам, просто выберите, что вам интересно!'
+)
+
+        return  # Прекращаем выполнение, если режим не выбран
+
     message_text = update.message.text
 
     # Отправляем текстовое сообщение на MockAPI
@@ -50,6 +74,7 @@ async def forward_user_message(update: Update, context: ContextTypes.DEFAULT_TYP
                     await update.message.reply_text('Произошла ошибка при отправке сообщения на MockAPI.')
         except Exception as e:
             await update.message.reply_text(f'Произошла ошибка: {e}')
+
 
 async def forward_admin_message(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     if update.message.chat.id == ADMIN_ID:
@@ -122,6 +147,8 @@ def main():
     application.add_handler(CommandHandler("start", start))
     application.add_handler(CommandHandler("presentation", presentation))
     application.add_handler(CommandHandler("ffx", ffx))
+    application.add_handler(CommandHandler("fortis", fortis_info))  # Обработчик для /fortis
+    application.add_handler(CommandHandler("fwb", fwb_info))  # Обработчик для /fwb
     application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND & ~filters.User(ADMIN_ID), forward_user_message))
 
     # Для текстовых сообщений
