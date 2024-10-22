@@ -16,10 +16,10 @@ user_states = {}
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     await update.message.reply_text('Привет🖐!\n🚀 Просим вас выбрать один из режимов, представленных в меню 📋.')
 
-async def presentation(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+async def advise(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     user_id = update.message.chat.id
-    user_states[user_id] = 'presentation'  # Устанавливаем состояние пользователя
-    await update.message.reply_text('Вы активировали режим презентации. Ваши сообщения будут отправлены администратору.')
+    user_states[user_id] = 'advise'  # Устанавливаем состояние пользователя
+    await update.message.reply_text('Вы активировали режим предложение. Ваши сообщения будут отправлены администратору.')
 
 async def ffx(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     user_id = update.message.chat.id
@@ -31,10 +31,10 @@ async def fortis_info(update: Update, context: ContextTypes.DEFAULT_TYPE) -> Non
         'Fortis — это крупная компания, занимающаяся финансовыми услугами, включая банковское дело, страхование и управление активами.'
     )
 
-async def fwb_info(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
-    await update.message.reply_text(
-        'FWB — это термин, который часто используется для обозначения финансовых решений, или в контексте программирования — как название среды или системы.'
-    )
+async def fwb(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    user_id = update.message.chat.id
+    user_states[user_id] = 'fwb'  # Устанавливаем состояние пользователя
+    await update.message.reply_text('Вы активировали режим FWB. Ваши сообщения будут отправлены администратору.')
 
 async def forward_user_message(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     user_id = update.message.chat.id
@@ -43,10 +43,10 @@ async def forward_user_message(update: Update, context: ContextTypes.DEFAULT_TYP
     if user_id not in user_states:
         await update.message.reply_text(
     '🚀 Перед тем, как продолжить, пожалуйста, выберите один из режимов, представленных ниже:\n\n'
-    '🔹 /fortis — Узнать больше о нашей компании\n'
+    '🔹 /fortis — Узнать о нашей компании\n'
     '🔹 /ffx — Режим трейдер\n'
     '🔹 /fwb — Режим программирования\n'
-    '🔹 /presentation — Режим презентации\n\n'
+    '🔹 /advise — Режим предложения\n\n'
     '✨ Мы готовы помочь вам, просто выберите, что вам интересно!'
 )
 
@@ -61,10 +61,12 @@ async def forward_user_message(update: Update, context: ContextTypes.DEFAULT_TYP
                 if response.status == 201:
                     # Определяем состояние пользователя и отправляем соответствующее уведомление администратору
                     if user_id in user_states:
-                        if user_states[user_id] == 'presentation':
+                        if user_states[user_id] == 'advise':
                             await context.bot.send_message(chat_id=ADMIN_ID, text=f'Сообщение от пользователя {user_id} (Презентация): {message_text}')
                         elif user_states[user_id] == 'ffx':
                             await context.bot.send_message(chat_id=ADMIN_ID, text=f'Сообщение от пользователя {user_id} (FFX): {message_text}')
+                        elif user_states[user_id] == 'fwb':
+                            await context.bot.send_message(chat_id=ADMIN_ID, text=f'Сообщение от пользователя {user_id} (FWB): {message_text}')
                     await update.message.reply_text(
                         '✉️ Ваше сообщение было успешно отправлено администратору!\n'
                         'Пожалуйста, подождите, пока мы подготовим для вас ответ.\n'
@@ -126,7 +128,7 @@ async def forward_admin_message(update: Update, context: ContextTypes.DEFAULT_TY
     else:
         await update.message.reply_text('Вы не имеете прав для отправки сообщений администратору.')
 
-async def forward_admin_presentation(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+async def forward_admin_advise(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     if update.message.chat.id == ADMIN_ID and update.message.document:
         user_id = int(update.message.caption.split()[0]) if update.message.caption else None
         await context.bot.send_message(chat_id=ADMIN_ID, text=f'Попытка отправить презентацию пользователю {user_id}.')
@@ -136,19 +138,19 @@ async def forward_admin_presentation(update: Update, context: ContextTypes.DEFAU
                 await context.bot.send_document(chat_id=user_id, document=update.message.document.file_id)
                 await context.bot.send_message(chat_id=ADMIN_ID, text=f'Презентация отправлена пользователю {user_id}.')
             except Exception as e:
-                await context.bot.send_message(chat_id=ADMIN_ID, text=f'Ошибка при отправке презентации пользователю {user_id}: {e}')
+                await context.bot.send_message(chat_id=ADMIN_ID, text=f'Ошибка при отправке предложение пользователю {user_id}: {e}')
         else:
-            await context.bot.send_message(chat_id=ADMIN_ID, text='Пожалуйста, укажите корректный ID пользователя в подписи к презентации.')
+            await context.bot.send_message(chat_id=ADMIN_ID, text='Пожалуйста, укажите корректный ID пользователя в подписи к предложение.')
 
 
 def main():
     application = ApplicationBuilder().token(TOKEN).build()
 
     application.add_handler(CommandHandler("start", start))
-    application.add_handler(CommandHandler("presentation", presentation))
+    application.add_handler(CommandHandler("advise", advise))
     application.add_handler(CommandHandler("ffx", ffx))
     application.add_handler(CommandHandler("fortis", fortis_info))  # Обработчик для /fortis
-    application.add_handler(CommandHandler("fwb", fwb_info))  # Обработчик для /fwb
+    application.add_handler(CommandHandler("fwb", fwb))  # Обработчик для /fwb
     application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND & ~filters.User(ADMIN_ID), forward_user_message))
 
     # Для текстовых сообщений
@@ -158,7 +160,7 @@ def main():
     # Для фото
     application.add_handler(MessageHandler(filters.User(ADMIN_ID) & filters.PHOTO, forward_admin_message))
     # Для презентаций (файлы с расширением .pptx)
-    application.add_handler(MessageHandler(filters.User(ADMIN_ID) & filters.Document.ALL, forward_admin_presentation))
+    application.add_handler(MessageHandler(filters.User(ADMIN_ID) & filters.Document.ALL, forward_admin_advise))
 
     application.run_polling()
 
