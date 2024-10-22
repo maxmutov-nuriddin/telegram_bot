@@ -62,7 +62,7 @@ async def forward_user_message(update: Update, context: ContextTypes.DEFAULT_TYP
                     # Определяем состояние пользователя и отправляем соответствующее уведомление администратору
                     if user_id in user_states:
                         if user_states[user_id] == 'advise':
-                            await context.bot.send_message(chat_id=ADMIN_ID, text=f'Сообщение от пользователя {user_id} (Презентация): {message_text}')
+                            await context.bot.send_message(chat_id=ADMIN_ID, text=f'Сообщение от пользователя {user_id} (Advise): {message_text}')
                         elif user_states[user_id] == 'ffx':
                             await context.bot.send_message(chat_id=ADMIN_ID, text=f'Сообщение от пользователя {user_id} (FFX): {message_text}')
                         elif user_states[user_id] == 'fwb':
